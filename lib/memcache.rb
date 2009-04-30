@@ -118,7 +118,7 @@ class MemCache
   # Other options are ignored.
 
   def initialize(*args)
-    servers = []
+    servers = (ENV["MEMCACHE_SERVERS"] || "").split(",")
     opts = {}
 
     case args.length
@@ -138,7 +138,7 @@ class MemCache
     end
 
     opts = DEFAULT_OPTIONS.merge opts
-    @namespace   = opts[:namespace]
+    @namespace   = ENV["MEMCACHE_NAMESPACE"] || opts[:namespace]
     @readonly    = opts[:readonly]
     @multithread = opts[:multithread]
     @timeout     = opts[:timeout]

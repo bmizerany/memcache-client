@@ -114,6 +114,8 @@ class TestMemCache < Test::Unit::TestCase
 
   def setup
     @cache = MemCache.new 'localhost:1', :namespace => 'my_namespace'
+    ENV["MEMCACHE_SERVERS"] = nil
+    ENV["MEMCACHE_NAMESPACE"] = nil
   end
 
   def test_performance
@@ -360,6 +362,37 @@ class TestMemCache < Test::Unit::TestCase
       end
     end
     assert passed
+  end
+
+  def test_initialize_from_ENV
+    ENV["MEMCACHE_SERVERS"] = "localhost:1234"
+
+    cache = MemCache.new
+
+    assert_equal nil, cache.namespace
+    assert_equal false, cache.readonly?
+    assert_equal 1, cache.servers.size
+  end
+
+  def test_initialize_multi_from_ENV
+    ENV["MEMCACHE_SERVERS"] = "localhost:1234,localhost:5467"
+
+    cache = MemCache.new
+
+    assert_equal nil, cache.namespace
+    assert_equal false, cache.readonly?
+    assert_equal 2, cache.servers.size
+  end
+
+  def test_initialize_from_ENV_with_namespace
+    ENV["MEMCACHE_SERVERS"] = "localhost:1234"
+    ENV["MEMCACHE_NAMESPACE"] = "foobar"
+
+    cache = MemCache.new
+
+    assert_equal "foobar", cache.namespace
+    assert_equal false, cache.readonly?
+    assert_equal 1, cache.servers.size
   end
 
   def test_initialize
